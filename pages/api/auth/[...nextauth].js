@@ -1,6 +1,10 @@
 import NextAuth from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
+import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
+import clientPromise from "../../../lib/mongoDb";
+import { getOrCreateUser } from "../../../lib/auth";
+
 export const authOptions = {
   // Configure one or more authentication providers
   providers: [
@@ -20,6 +24,12 @@ export const authOptions = {
   },
   jwt: {
     secret: process.env.JWT_KEY,
+  },
+  adapter: MongoDBAdapter(clientPromise),
+  callbacks: {
+    async signIn({ user }) {
+      return await getOrCreateUser(user);
+    },
   },
 };
 
